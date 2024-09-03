@@ -1,7 +1,16 @@
 import pygame as pg
 import random as rnd
+import argparse as arg
+import sys
+
+parser = arg.ArgumentParser()
+
+parser.add_argument('--filename', nargs=1)
+
+args = parser.parse_args()
 
 import localmath as lmath
+from file import InterpretFile
 
 VERTICE_COLOR: pg.Color = pg.Color(0,255,0)
 EDGE_COLOR: pg.Color = pg.Color(0,255,0)
@@ -13,7 +22,7 @@ running: bool = True
 focalLength: int = 100
 
 rotatedX: int | float = 0
-rotatedY: int | float = 45
+rotatedY: int | float = 0
 rotatedZ: int | float = 0
 
 drawnVertices: list[pg.Vector3] = []
@@ -25,22 +34,13 @@ targetFPS = 60
 ROTATE: bool = True
 SPIN: bool = True
 
-vertices: list[list[int, int, int]] = [
-    [40,  40,  40],  # ftr
-    [40, -40,  40],  # fbr
-    [-40, -40,  40], # fbl
-    [-40,  40,  40], # ftl
-    [40,  40, -40],  # btr
-    [40, -40, -40],  # bbr
-    [-40, -40, -40], # bbl
-    [-40,  40, -40], # btl
-]
+OUTER_LIMIT = 40
 
-edges: list[list[int, int]] = [
-    [0, 1], [1, 2], [2, 3], [3, 0],  # front
-    [4, 5], [5, 6], [6, 7], [7, 4],  # back
-    [0, 4], [1, 5], [2, 6], [3, 7],  # connection
-]
+interpretedFile = InterpretFile(args.filename[0])
+
+vertices: list = interpretedFile["vertices"]
+
+edges: list = interpretedFile["edges"]
 
 
 def drawVertice(vertice: pg.Vector3, rotate: bool) -> None:
@@ -58,7 +58,7 @@ def drawVertice(vertice: pg.Vector3, rotate: bool) -> None:
 
     projectedPosition = lmath.offsetVector2(projectedPosition, 500)
     
-    pg.draw.circle(WIN, VERTICE_COLOR, projectedPosition, 3)
+    pg.draw.circle(WIN, VERTICE_COLOR, projectedPosition, 0)
 
 def drawEdge(edgePair: int, rotate: bool) -> None:
     global drawnVertices, WIN, EDGE_COLOR
@@ -107,7 +107,7 @@ def main():
             drawEdge(v, ROTATE)
         
         if SPIN:
-            rotatedX += rnd.randrange(0, 2) - 1
+            rotatedX += rnd.randrange(0, 1) - 1
             rotatedY += rnd.randrange(0, 1) - 1
             rotatedZ += rnd.randrange(0, 1) - 1
         
